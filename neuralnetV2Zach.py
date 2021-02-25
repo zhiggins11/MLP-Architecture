@@ -16,25 +16,16 @@ import math
 
 
 def load_config(path):
-    """
-    Load the configuration from config.yaml.
-    """
     return yaml.load(open('config.yaml', 'r'), Loader=yaml.SafeLoader)
 
 
 def normalize_data(inp):
-    """
-    TODO: Normalize your inputs here to have 0 mean and unit variance.
-    """
-    meanInp = np.mean(inp)
-    stdInp = np.std(inp)
-    return (inp - meanInp) / stdInp
+    mean = np.mean(inp)
+    std = np.std(inp)
+    return (inp - mean) / std
 
 
 def one_hot_encoding(labels, num_classes=10):
-    """
-    TODO: Encode labels using one hot encoding and return them.
-    """
     new_labels = np.zeros((len(labels), num_classes))
     for i in range(len(labels)):
         new_labels[i][labels[i]] = 1
@@ -42,11 +33,6 @@ def one_hot_encoding(labels, num_classes=10):
 
 
 def load_data(path, mode='train'):
-    """
-    Load Fashion MNIST data.
-    Use mode='train' for train and mode='t10k' for test.
-    """
-
     labels_path = os.path.join(path, f'{mode}-labels-idx1-ubyte.gz')
     images_path = os.path.join(path, f'{mode}-images-idx3-ubyte.gz')
 
@@ -64,13 +50,11 @@ def load_data(path, mode='train'):
 
 def softmax(x):
     """
-    TODO: Implement the softmax function here.
-    Remember to take care of the overflow condition.
     Input: x is a 2d array.  Each row of the array corresponds to one example
     """
     
     expx = np.exp(x)
-    expx[np.isinf(expx)] = 1000000.0 # set an upper bound
+    expx[np.isinf(expx)] = 1000000.0
     sumExpx = np.sum(expx, axis = 1)
     return expx / sumExpx[:, None]
 
@@ -97,22 +81,15 @@ class Activation():
     """
 
     def __init__(self, activation_type = "sigmoid"):
-        """
-        TODO: Initialize activation type and placeholders here.
-        """
         if activation_type not in ["sigmoid", "tanh", "ReLU", "leakyReLU"]:
             raise NotImplementedError(f"{activation_type} is not implemented.")
 
-        # Type of non-linear activation.
         self.activation_type = activation_type
 
         # Placeholder for input. This will be used for computing gradients.
         self.x = None
 
     def __call__(self, a):
-        """
-        This method allows your instances to be callable.
-        """
         return self.forward(a)
 
     def forward(self, a):
@@ -148,58 +125,33 @@ class Activation():
         elif self.activation_type == "ReLU":
             grad = self.grad_ReLU()
 
-        return np.multiply(grad, deltas) #multiply grad and deltas componentwise # return grad * deltas
+        return np.multiply(grad, deltas)
 
     def sigmoid(self, x):
-        """
-        TODO: Implement the sigmoid activation here.
-        """
         return 1.0 / (1.0 + np.exp(-x))
 
 
     def tanh(self, x):
-        """
-        TODO: Implement tanh here.
-        """
         return np.tanh(x)
-        #return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
 
     def ReLU(self, x):
-        """
-        TODO: Implement ReLU here.
-        """
         return np.maximum(0.0, x)
 
     def leakyReLU(self, x):
-        """
-        TODO: Implement leaky ReLU here.
-        """
         return np.maximum(0.1 * x, x)
 
     def grad_sigmoid(self):
-        """
-        TODO: Compute the gradient for sigmoid here.
-        """
         a = np.exp(-self.x)
         return a / ((1 + a)*(1 + a))
 
     def grad_tanh(self):
-        """
-        TODO: Compute the gradient for tanh here.
-        """
         a = np.tanh(self.x)
         return 1 - np.multiply(a,a)
 
     def grad_ReLU(self):
-        """
-        TODO: Compute the gradient for ReLU here.
-        """
         return 1.0 * (self.x >= 0)
 
     def grad_leakyReLU(self):
-        """
-        TODO: Compute the gradient for leaky ReLU here.
-        """
         return 1.0 * (self.x >= 0) + 0.1 * (self.x < 0)
     
     def update(self, momentum, momentum_gamma, learn_rate, L2_regularization):
@@ -361,7 +313,6 @@ class Neuralnetwork():
 
     def loss(self, logits, targets):
         '''
-        TODO: compute the categorical cross-entropy loss and return it.
         Input: targets is a 2D array where the ith row is the target (one-hot encoding) for ith example
                 logits is a 2D array where the ith row is softmax(output_i) where output_i is the output of NN on ith example
         '''
@@ -378,19 +329,12 @@ class Neuralnetwork():
         return self.L2_penalty*total/2
 
     def backward(self):
-        '''
-        TODO: Implement backpropagation here.
-        Call backward methods of individual layers.
-        '''
         delta = self.targets - self.y #delta for output layer
         for layer in reversed(self.layers):
             delta = layer.backward(delta) #each layer returns delta for previous layer
             
                 
     def update(self, momentum, momentum_gamma, learning_rate, L2_penalty):
-        """
-        Update the weights in each layer
-        """
         for layer in self.layers:
             layer.update(momentum, momentum_gamma, learning_rate, L2_penalty)
     
@@ -422,10 +366,6 @@ class Neuralnetwork():
             if isinstance(layer,Layer):
                 layer.set_weights_and_biases(new_weights_and_biases[i])
                 i += 1
-
-
-#def batchSGD(model, x_train, y_train, config):
-
 
 
 def train(model, x_train, y_train, x_valid, y_valid, config):

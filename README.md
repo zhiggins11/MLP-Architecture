@@ -1,5 +1,8 @@
 # CSE-251-Homework 2 - Neural Networks
 
+This is work that I did as part of a group project (with Yunyi Zhang) for CSE 251B (Neural Networks).  I benefited from discussions with Yunyi, but all code here was written by me or given by the instructor.  Specifically, the instructor gave us a skeleton for the program consisting of suggested classes and functions to define, and I implemented the classes and functions.
+
+
 
 ## Parameters
 
